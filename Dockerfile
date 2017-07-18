@@ -51,7 +51,7 @@ RUN gem install bundler
 
 # Run as non-privileged user
 RUN useradd -m -s /bin/bash app \
-	&& mkdir /opt/app /opt/app/client /opt/app/log /opt/app/tmp && chown -R app:app /opt/app
+        && mkdir /opt/app /opt/app/client /opt/app/log /opt/app/tmp && chown -R app:app /opt/app
 
 WORKDIR /opt/app
 
@@ -72,7 +72,7 @@ ENV NODE_ENV production
 ENV NPM_CONFIG_LOGLEVEL error
 ENV NPM_CONFIG_PRODUCTION true
 
-RUN npm install
+RUN npm install --unsafe-perm
 
 COPY . /opt/app
 
@@ -86,6 +86,7 @@ CMD ["script/startup.sh"]
 
 # Fix ownership of directories that need to be writable
 USER root
+COPY config/database.docker.yml config/database.yml
 RUN mkdir -p \
           app/assets/webpack \
           public/assets \
@@ -96,6 +97,7 @@ RUN mkdir -p \
        client/app/ \
        public/assets \
        public/webpack
+
 USER app
 
 # If assets.tar.gz file exists in project root
@@ -103,3 +105,4 @@ USER app
 # Otherwise, assets will be compiled with `rake assets:precompile`.
 # Useful for caching assets between builds.
 RUN script/prepare-assets.sh
+
